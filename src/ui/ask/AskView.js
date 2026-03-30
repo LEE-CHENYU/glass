@@ -119,7 +119,7 @@ export class AskView extends LitElement {
 
         .response-container code {
             font-family: 'Monaco', 'Menlo', 'Consolas', monospace !important;
-            font-size: 15px !important;
+            font-size: 20px !important;
             background: transparent !important;
             white-space: pre !important;
             word-wrap: normal !important;
@@ -241,7 +241,7 @@ export class AskView extends LitElement {
         }
 
         .response-label {
-            font-size: 17px;
+            font-size: 22px;
             font-weight: 500;
             color: rgba(255, 255, 255, 0.9);
             white-space: nowrap;
@@ -277,7 +277,7 @@ export class AskView extends LitElement {
         }
 
         .question-text {
-            font-size: 17px;
+            font-size: 22px;
             color: rgba(255, 255, 255, 0.7);
             white-space: nowrap;
             overflow: hidden;
@@ -365,7 +365,7 @@ export class AskView extends LitElement {
             padding: 16px;
             padding-left: 48px;
             overflow-y: auto;
-            font-size: 18px;
+            font-size: 24px;
             line-height: 1.6;
             background: transparent;
             min-height: 0;
@@ -518,7 +518,7 @@ export class AskView extends LitElement {
             outline: none;
             border: none;
             color: white;
-            font-size: 18px;
+            font-size: 24px;
             font-family: 'Helvetica Neue', sans-serif;
             font-weight: 400;
         }
@@ -564,7 +564,7 @@ export class AskView extends LitElement {
             padding: 2px 6px;
             border-radius: 4px;
             font-family: 'Monaco', 'Menlo', monospace;
-            font-size: 17px;
+            font-size: 22px;
         }
 
         .response-line pre {
@@ -596,7 +596,7 @@ export class AskView extends LitElement {
             justify-content: center;
             height: 100%;
             color: rgba(255, 255, 255, 0.5);
-            font-size: 18px;
+            font-size: 24px;
         }
 
         .btn-gap {
@@ -651,7 +651,7 @@ export class AskView extends LitElement {
             border: none;
             border-radius: 6px;
             margin-left: 8px;
-            font-size: 17px;
+            font-size: 22px;
             font-family: 'Helvetica Neue', sans-serif;
             font-weight: 500;
             overflow: hidden;
@@ -695,7 +695,7 @@ export class AskView extends LitElement {
         }
         .header-clear-btn .icon-box {
             color: white;
-            font-size: 16px;
+            font-size: 20px;
             font-family: 'Helvetica Neue', sans-serif;
             font-weight: 500;
             background-color: rgba(255, 255, 255, 0.1);

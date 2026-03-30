@@ -95,13 +95,14 @@ const PROVIDERS = {
           { id: 'whisper-medium', name: 'Whisper Medium (769M)' },
       ],
   },
+  // Avalon (Aqua Voice) — batch transcription only, no realtime WebSocket support.
+  // Kept registered for future batch/post-processing use but with empty sttModels
+  // so it won't be auto-selected for live STT sessions.
   'avalon': {
       name: 'Aqua (Avalon)',
       handler: () => require("./providers/avalon"),
       llmModels: [],
-      sttModels: [
-          { id: 'avalon-1', name: 'Avalon 1 (Aqua Voice)' }
-      ],
+      sttModels: [],
   },
 };
 
