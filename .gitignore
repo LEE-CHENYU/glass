@@ -112,4 +112,7 @@ data/*.db-wal
 # Build output
 out/
 dist/
-build/ 
+build/ node_modules/
+pickleglass_web/node_modules/
+pickleglass_web/.next/
+.env
