@@ -158,9 +158,6 @@ function getProviderClass(providerId) {
         'openai': 'OpenAIProvider',
         'anthropic': 'AnthropicProvider',
         'gemini': 'GeminiProvider',
-        'deepgram': 'DeepgramProvider',
-        'ollama': 'OllamaProvider',
-        'whisper': 'WhisperProvider',
     };
     
     const className = classNameMap[actualProviderId];
