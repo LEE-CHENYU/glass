@@ -15,7 +15,7 @@ class AnthropicProvider {
                     "anthropic-version": "2023-06-01",
                 },
                 body: JSON.stringify({
-                    model: "claude-3-haiku-20240307",
+                    model: "claude-haiku-4-5-20251001",
                     max_tokens: 1,
                     messages: [{ role: "user", content: "Hi" }],
                 }),
@@ -68,7 +68,7 @@ async function createSTT({ apiKey, language = "en", callbacks = {}, ...config })
  * @param {number} [opts.maxTokens=4096] - Max tokens
  * @returns {object} LLM instance
  */
-function createLLM({ apiKey, model = "claude-3-5-sonnet-20241022", temperature = 0.7, maxTokens = 4096, ...config }) {
+function createLLM({ apiKey, model = "claude-sonnet-4-6", temperature = 0.7, maxTokens = 4096, ...config }) {
   const client = new Anthropic({ apiKey })
 
   return {
@@ -195,7 +195,7 @@ function createLLM({ apiKey, model = "claude-3-5-sonnet-20241022", temperature =
  */
 function createStreamingLLM({
   apiKey,
-  model = "claude-3-5-sonnet-20241022",
+  model = "claude-sonnet-4-6",
   temperature = 0.7,
   maxTokens = 4096,
   ...config
