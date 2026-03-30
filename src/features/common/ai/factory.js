@@ -54,6 +54,7 @@ const PROVIDERS = {
       name: 'Anthropic',
       handler: () => require("./providers/anthropic"),
       llmModels: [
+          { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5 (fast)' },
           { id: 'claude-sonnet-4-6', name: 'Claude Sonnet 4.6' },
       ],
       sttModels: [],
