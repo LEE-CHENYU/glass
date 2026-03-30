@@ -44,7 +44,7 @@ const PROVIDERS = {
       name: 'Gemini',
       handler: () => require("./providers/gemini"),
       llmModels: [
-          { id: 'gemini-3-flash', name: 'Gemini 3 Flash' },
+          { id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash' },
       ],
       sttModels: [
           { id: 'gemini-live-2.5-flash-preview', name: 'Gemini Live 2.5 Flash' }

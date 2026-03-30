@@ -67,7 +67,7 @@ async function createSTT({ apiKey, language = "en-US", callbacks = {}, ...config
 /**
  * Creates a Gemini LLM instance with proper text response handling
  */
-function createLLM({ apiKey, model = "gemini-3-flash", temperature = 0.7, maxTokens = 8192, ...config }) {
+function createLLM({ apiKey, model = "gemini-3-flash-preview", temperature = 0.7, maxTokens = 8192, ...config }) {
   const client = new GoogleGenerativeAI(apiKey)
 
   return {
@@ -201,7 +201,7 @@ function createLLM({ apiKey, model = "gemini-3-flash", temperature = 0.7, maxTok
 /**
  * Creates a Gemini streaming LLM instance with text response fix
  */
-function createStreamingLLM({ apiKey, model = "gemini-3-flash", temperature = 0.7, maxTokens = 8192, ...config }) {
+function createStreamingLLM({ apiKey, model = "gemini-3-flash-preview", temperature = 0.7, maxTokens = 8192, ...config }) {
   const client = new GoogleGenerativeAI(apiKey)
 
   return {
