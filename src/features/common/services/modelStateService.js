@@ -95,10 +95,9 @@ class ModelStateService extends EventEmitter {
     }
     
     setupLocalAIStateSync() {
-        const localAIManager = require('./localAIManager');
-        localAIManager.on('state-changed', (service, status) => {
-            this.handleLocalAIStateChange(service, status);
-        });
+        // Disabled — Tars uses cloud providers only (OpenAI, Anthropic, Gemini).
+        // Local AI services (Ollama, Whisper) were firing state changes that
+        // triggered unwanted auto-reselection of STT/LLM providers.
     }
 
     async handleLocalAIStateChange(service, state) {
@@ -151,8 +150,8 @@ class ModelStateService extends EventEmitter {
                 if (availableModels.length > 0) {
                     // Prefer OpenAI for STT (proven realtime WebSocket), Anthropic for LLM
                     const preferredProviders = type === 'stt'
-                        ? ['openai', 'gemini']
-                        : ['anthropic', 'openai', 'gemini'];
+                        ? ['openai']
+                        : ['anthropic', 'openai'];
                     let apiModel = null;
                     for (const preferred of preferredProviders) {
                         apiModel = availableModels.find(model => {
