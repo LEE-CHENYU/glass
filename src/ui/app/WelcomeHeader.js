@@ -188,15 +188,15 @@ export class WelcomeHeader extends LitElement {
             <div class="container">
                 <button class="close-button" @click=${this.handleClose}>×</button>
                 <div class="header-section">
-                    <div class="title">Welcome to Glass</div>
-                    <div class="subtitle">Choose how to connect your AI model</div>
+                    <div class="title">Welcome to Tars</div>
+                    <div class="subtitle">Your interview copilot — set up your AI keys</div>
                 </div>
                 <div class="option-card">
                     <div class="divider"></div>
                     <div class="option-content">
-                        <div class="option-title">Quick start with default API key</div>
+                        <div class="option-title">Sign in with Google</div>
                         <div class="option-description">
-                            100% free with Pickle's OpenAI key<br/>No personal data collected<br/>Sign up with Google in seconds
+                            Sync sessions across devices<br/>Cloud backup of transcripts<br/>Sign in with Google in seconds
                         </div>
                     </div>
                     <button class="action-button" @click=${this.loginCallback}>
@@ -207,18 +207,18 @@ export class WelcomeHeader extends LitElement {
                 <div class="option-card">
                     <div class="divider"></div>
                     <div class="option-content">
-                        <div class="option-title">Use Personal API keys</div>
+                        <div class="option-title">Enter your API keys</div>
                         <div class="option-description">
-                            Costs may apply based on your API usage<br/>No personal data collected<br/>Use your own API keys (OpenAI, Gemini, etc.)
+                            Add your LLM key (OpenAI, Anthropic, Gemini)<br/>Add your Aqua Voice key for Avalon STT<br/>All keys stored locally
                         </div>
                     </div>
                     <button class="action-button" @click=${this.apiKeyCallback}>
-                        <div class="button-text">Enter Your API Key</div>
+                        <div class="button-text">Set Up API Keys</div>
                         <div class="button-icon"><div class="arrow-icon"></div></div>
                     </button>
                 </div>
                 <div class="footer">
-                    Glass does not collect your personal data —
+                    Tars stores all data locally —
                     <span class="footer-link" @click=${this.openPrivacyPolicy}>See details</span>
                 </div>
             </div>
