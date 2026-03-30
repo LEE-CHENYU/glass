@@ -95,15 +95,6 @@ const PROVIDERS = {
           { id: 'whisper-medium', name: 'Whisper Medium (769M)' },
       ],
   },
-  // Avalon (Aqua Voice) — batch transcription only, no realtime WebSocket support.
-  // Kept registered for future batch/post-processing use but with empty sttModels
-  // so it won't be auto-selected for live STT sessions.
-  'avalon': {
-      name: 'Aqua (Avalon)',
-      handler: () => require("./providers/avalon"),
-      llmModels: [],
-      sttModels: [],
-  },
 };
 
 function sanitizeModelId(model) {
@@ -170,7 +161,6 @@ function getProviderClass(providerId) {
         'deepgram': 'DeepgramProvider',
         'ollama': 'OllamaProvider',
         'whisper': 'WhisperProvider',
-        'avalon': 'AvalonProvider'
     };
     
     const className = classNameMap[actualProviderId];
