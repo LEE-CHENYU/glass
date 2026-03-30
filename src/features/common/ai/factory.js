@@ -22,7 +22,8 @@ const PROVIDERS = {
       name: 'OpenAI',
       handler: () => require("./providers/openai"),
       llmModels: [
-          { id: 'gpt-4.1', name: 'GPT-4.1' },
+          { id: 'gpt-5.4', name: 'GPT-5.4' },
+          { id: 'gpt-5.4-mini', name: 'GPT-5.4 Mini' },
       ],
       sttModels: [
           { id: 'gpt-4o-mini-transcribe', name: 'GPT-4o Mini Transcribe' }
@@ -33,7 +34,7 @@ const PROVIDERS = {
       name: 'OpenAI (Glass)',
       handler: () => require("./providers/openai"),
       llmModels: [
-          { id: 'gpt-4.1-glass', name: 'GPT-4.1 (glass)' },
+          { id: 'gpt-5.4-glass', name: 'GPT-5.4 (glass)' },
       ],
       sttModels: [
           { id: 'gpt-4o-mini-transcribe-glass', name: 'GPT-4o Mini Transcribe (glass)' }
@@ -43,7 +44,7 @@ const PROVIDERS = {
       name: 'Gemini',
       handler: () => require("./providers/gemini"),
       llmModels: [
-          { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash' },
+          { id: 'gemini-3-flash', name: 'Gemini 3 Flash' },
       ],
       sttModels: [
           { id: 'gemini-live-2.5-flash-preview', name: 'Gemini Live 2.5 Flash' }
@@ -53,7 +54,7 @@ const PROVIDERS = {
       name: 'Anthropic',
       handler: () => require("./providers/anthropic"),
       llmModels: [
-          { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet' },
+          { id: 'claude-sonnet-4-6', name: 'Claude Sonnet 4.6' },
       ],
       sttModels: [],
   },
@@ -91,6 +92,14 @@ const PROVIDERS = {
           { id: 'whisper-base', name: 'Whisper Base (74M)' },
           { id: 'whisper-small', name: 'Whisper Small (244M)' },
           { id: 'whisper-medium', name: 'Whisper Medium (769M)' },
+      ],
+  },
+  'avalon': {
+      name: 'Aqua (Avalon)',
+      handler: () => require("./providers/avalon"),
+      llmModels: [],
+      sttModels: [
+          { id: 'avalon-1', name: 'Avalon 1 (Aqua Voice)' }
       ],
   },
 };
@@ -158,7 +167,8 @@ function getProviderClass(providerId) {
         'gemini': 'GeminiProvider',
         'deepgram': 'DeepgramProvider',
         'ollama': 'OllamaProvider',
-        'whisper': 'WhisperProvider'
+        'whisper': 'WhisperProvider',
+        'avalon': 'AvalonProvider'
     };
     
     const className = classNameMap[actualProviderId];
