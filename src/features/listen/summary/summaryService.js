@@ -90,8 +90,9 @@ Please build upon this context while analyzing the new conversation segments.
 `;
         }
 
-        const basePrompt = getSystemPrompt('pickle_glass_analysis', '', false);
-        const systemPrompt = basePrompt.replace('{{CONVERSATION_HISTORY}}', recentConversation);
+        const activeProfile = global.tarsActiveProfile || 'hebbia';
+        const basePrompt = getSystemPrompt(activeProfile, recentConversation, false);
+        const systemPrompt = basePrompt;
 
         try {
             if (this.currentSessionId) {

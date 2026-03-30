@@ -254,7 +254,9 @@ class AskService {
 
             const conversationHistory = this._formatConversationForPrompt(conversationHistoryRaw);
 
-            const systemPrompt = getSystemPrompt('pickle_glass_analysis', conversationHistory, false);
+            // Use active interview profile (default: hebbia as the active interview)
+            const activeProfile = global.tarsActiveProfile || 'hebbia';
+            const systemPrompt = getSystemPrompt(activeProfile, conversationHistory, false);
 
             const messages = [
                 { role: 'system', content: systemPrompt },
