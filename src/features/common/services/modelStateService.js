@@ -149,10 +149,24 @@ class ModelStateService extends EventEmitter {
                 console.log(`[ModelStateService] No valid ${type.toUpperCase()} model selected or selection forced. Finding an alternative...`);
                 const availableModels = await this.getAvailableModels(type);
                 if (availableModels.length > 0) {
-                    const apiModel = availableModels.find(model => {
-                        const provider = this.getProviderForModel(model.id, type);
-                        return provider && provider !== 'ollama' && provider !== 'whisper';
-                    });
+                    // Prefer OpenAI for STT (proven realtime WebSocket), Anthropic for LLM
+                    const preferredProviders = type === 'stt'
+                        ? ['openai', 'gemini']
+                        : ['anthropic', 'openai', 'gemini'];
+                    let apiModel = null;
+                    for (const preferred of preferredProviders) {
+                        apiModel = availableModels.find(model => {
+                            const provider = this.getProviderForModel(model.id, type);
+                            return provider === preferred;
+                        });
+                        if (apiModel) break;
+                    }
+                    if (!apiModel) {
+                        apiModel = availableModels.find(model => {
+                            const provider = this.getProviderForModel(model.id, type);
+                            return provider && provider !== 'ollama' && provider !== 'whisper';
+                        });
+                    }
                     const newModel = apiModel || availableModels[0];
                     await this.setSelectedModel(type, newModel.id);
                     console.log(`[ModelStateService] Auto-selected ${type.toUpperCase()} model: ${newModel.id}`);
