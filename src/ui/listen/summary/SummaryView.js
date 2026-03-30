@@ -24,7 +24,7 @@ export class SummaryView extends LitElement {
 
         .insights-container code {
             font-family: 'Monaco', 'Menlo', 'Consolas', monospace !important;
-            font-size: 20px !important;
+            font-size: 16px !important;
             background: transparent !important;
             white-space: pre !important;
             word-wrap: normal !important;
@@ -105,7 +105,7 @@ export class SummaryView extends LitElement {
 
         insights-title {
             color: rgba(255, 255, 255, 0.8);
-            font-size: 24px;
+            font-size: 16px;
             font-weight: 500;
             font-family: 'Helvetica Neue', sans-serif;
             margin: 12px 0 8px 0;
@@ -114,7 +114,7 @@ export class SummaryView extends LitElement {
 
         .insights-container h4 {
             color: #ffffff;
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 600;
             margin: 12px 0 8px 0;
             padding: 4px 8px;
@@ -133,7 +133,7 @@ export class SummaryView extends LitElement {
 
         .outline-item {
             color: #ffffff;
-            font-size: 20px;
+            font-size: 16px;
             line-height: 1.4;
             margin: 4px 0;
             padding: 6px 8px;
@@ -150,7 +150,7 @@ export class SummaryView extends LitElement {
 
         .request-item {
             color: #ffffff;
-            font-size: 20px;
+            font-size: 16px;
             line-height: 1.2;
             margin: 4px 0;
             padding: 6px 8px;
@@ -173,7 +173,7 @@ export class SummaryView extends LitElement {
         /* 마크다운 렌더링된 콘텐츠 스타일 */
         .markdown-content {
             color: #ffffff;
-            font-size: 20px;
+            font-size: 16px;
             line-height: 1.4;
             margin: 4px 0;
             padding: 6px 8px;
@@ -228,7 +228,7 @@ export class SummaryView extends LitElement {
             justify-content: center;
             height: 100px;
             color: rgba(255, 255, 255, 0.6);
-            font-size: 20px;
+            font-size: 16px;
             font-style: italic;
         }
     `;

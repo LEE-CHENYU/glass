@@ -46,7 +46,7 @@ export class SttView extends LitElement {
             word-wrap: break-word;
             word-break: break-word;
             line-height: 1.5;
-            font-size: 24px;
+            font-size: 18px;
             margin-bottom: 4px;
             box-sizing: border-box;
         }
@@ -73,7 +73,7 @@ export class SttView extends LitElement {
             justify-content: center;
             height: 100px;
             color: rgba(255, 255, 255, 0.6);
-            font-size: 20px;
+            font-size: 16px;
             font-style: italic;
         }
     `;
