@@ -426,7 +426,7 @@ export class SummaryView extends LitElement {
         let sections = [];
 
         if (data.summary && data.summary.length > 0) {
-            sections.push(`What To Say Now:\n${data.summary.map(s => `• ${s}`).join('\n')}`);
+            sections.push(`Hints:\n${data.summary.map(s => `• ${s}`).join('\n')}`);
         }
 
         if (data.topic && data.topic.header && data.topic.bullets.length > 0) {
@@ -434,7 +434,7 @@ export class SummaryView extends LitElement {
         }
 
         if (data.actions && data.actions.length > 0) {
-            sections.push(`\nNext Moves:\n${data.actions.map(a => `▸ ${a}`).join('\n')}`);
+            sections.push(`\nSuggestions:\n${data.actions.map(a => `▸ ${a}`).join('\n')}`);
         }
 
         if (data.followUps && data.followUps.length > 0) {
@@ -467,7 +467,7 @@ export class SummaryView extends LitElement {
                 ${!hasAnyContent
                     ? html`<div class="empty-state">No live help yet...</div>`
                     : html`
-                        <insights-title>What To Say Now</insights-title>
+                        <insights-title>Hints</insights-title>
                         ${data.summary.length > 0
                             ? data.summary
                                   .slice(0, 5)
@@ -505,7 +505,7 @@ export class SummaryView extends LitElement {
                             : ''}
                         ${data.actions.length > 0
                             ? html`
-                                  <insights-title>Next Moves</insights-title>
+                                  <insights-title>Suggestions</insights-title>
                                   ${data.actions
                                       .slice(0, 5)
                                       .map(

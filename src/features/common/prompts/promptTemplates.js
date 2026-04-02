@@ -5,9 +5,10 @@ const profilePrompts = {
         formatRequirements: `<decision_hierarchy>
 Execute in order — use the first that applies:
 
-1. QUESTION_DETECTED: If the interviewer asks a question, answer it directly using Cheney's prep material and background. Infer intent from context.
+1. QUESTION_DETECTED: If the interviewer asks a question, provide hint-style guidance using Cheney's prep material and background. Infer intent from context.
    - Behavioral questions: Use STAR format with real experiences (VCV, Guosheng, investment platform, multi-broker reconciliation)
    - Discovery / demo / POC questions: Start from the customer's deliverable, work backward through workflow and source docs, and show how Matrix reproduces the exact output with citations
+   - Product / "what is Matrix?" questions: Lead with the spreadsheet metaphor. Rows are docs/companies/deals, columns are questions, and each cell is an AI query with a citation. Contrast this with generic chat or document search.
    - Customer/workflow questions: Emphasize workflow mapping, highest-friction extraction/comparison step, validation, time-to-value, and technical trust
    - Technical / LLM questions: Surface the finance-specific failure modes, structured output guardrails, stale data examples, contradiction checks, and validation philosophy
    - Compliance / trust / deterministic-rules questions: Prefer Compliance OS as the first proof point, especially for Zayd. Use the deterministic-rules-first, LLM-second architecture and source-grounded document pipeline.
@@ -26,14 +27,17 @@ Execute in order — use the first that applies:
 
         content: `RESPONSE FORMAT:
 - Short headline (6 words or less) in bold
-- 1-2 main bullets (15 words or less each) with ready-to-speak phrasing
-- Sub-bullets with specific numbers, examples, or talking points from prep
-- Lead with the next sentence or answer angle Cheney can use immediately
+- 2-4 short bullet points only
+- Give hints, suggestions, and findings, not a scripted answer
+- Use fragments, angles, examples, risks, and facts from prep
+- Lead with the strongest answer direction, not a full sentence to repeat
+- For product explanation questions, prefer the spreadsheet/cell metaphor before any broader platform description
 - If the question is about trust, compliance, document processing, or deterministic rules, prefer Compliance OS before the investment journal
 - Be CONCISE — Cheney needs to glance and speak, not read an essay
 - Never fabricate experiences or numbers — use only what's in the context
 - If prep material covers the question, ALWAYS reference it rather than generating generic advice
-- Prefer precise, operator-style answers over hype`,
+- Prefer precise, operator-style hints over hype
+- Only draft exact wording if the user explicitly asks for a script`,
 
         outputInstructions: `{{INTERVIEW_CONTEXT}}`,
     },
@@ -57,9 +61,10 @@ Execute in order — use the first that applies:
 
         content: `RESPONSE FORMAT:
 - Short headline (6 words or less) in bold
-- 1-2 main bullets with ready-to-speak phrasing
-- Sub-bullets with specific numbers and examples from prep
-- Lead with what Cheney should say next, not analysis about the conversation
+- 2-4 short bullet points only
+- Give hints, suggestions, and findings, not a scripted answer
+- Use examples and specifics from prep
+- Lead with answer direction, not exact wording
 - Be CONCISE — glance and speak
 - Never fabricate — use only context provided`,
 
@@ -85,8 +90,9 @@ Execute in order:
 
         content: `RESPONSE FORMAT:
 - Short headline (6 words or less) in bold
-- 1-2 main bullets with ready-to-speak phrasing
-- Lead with what Cheney should say next, not analysis about the conversation
+- 2-4 short bullet points only
+- Give hints, suggestions, and findings, not a scripted answer
+- Lead with answer direction, not exact wording
 - Be CONCISE — this is a startup, they value directness
 - Never fabricate — use only context provided`,
 
@@ -112,9 +118,10 @@ Execute in order:
 
         content: `RESPONSE FORMAT:
 - Short headline (6 words or less) in bold
-- 1-2 main bullets with ready-to-speak phrasing
-- Sub-bullets with specific numbers from prep
-- Lead with what Cheney should say next, not analysis about the conversation
+- 2-4 short bullet points only
+- Give hints, suggestions, and findings, not a scripted answer
+- Use specific numbers from prep
+- Lead with answer direction, not exact wording
 - Be CONCISE
 - Never fabricate`,
 
@@ -140,9 +147,10 @@ Execute in order:
 
         content: `RESPONSE FORMAT:
 - Short headline (6 words or less) in bold
-- 1-2 main bullets with ready-to-speak phrasing
-- Sub-bullets with specifics from prep
-- Lead with what Cheney should say next, not analysis about the conversation
+- 2-4 short bullet points only
+- Give hints, suggestions, and findings, not a scripted answer
+- Use specifics from prep
+- Lead with answer direction, not exact wording
 - Be CONCISE
 - Never fabricate`,
 
@@ -168,8 +176,9 @@ Execute in order:
 
         content: `RESPONSE FORMAT:
 - Short headline (6 words or less) in bold
-- 1-2 main bullets with ready-to-speak phrasing
-- Lead with what Cheney should say next, not analysis about the conversation
+- 2-4 short bullet points only
+- Give hints, suggestions, and findings, not a scripted answer
+- Lead with answer direction, not exact wording
 - Be CONCISE — glance and speak
 - Never fabricate experiences or numbers`,
 

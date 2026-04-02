@@ -536,9 +536,6 @@ class LocalAIManager extends EventEmitter {
                 await this.updateServiceState(serviceName);
             }
         }, interval);
-        
-        // 각 서비스의 주기적 동기화도 시작
-        ollamaService.startPeriodicSync();
     }
     
     /**
@@ -549,9 +546,6 @@ class LocalAIManager extends EventEmitter {
             clearInterval(this.syncInterval);
             this.syncInterval = null;
         }
-        
-        // 각 서비스의 주기적 동기화도 중지
-        ollamaService.stopPeriodicSync();
     }
     
     /**

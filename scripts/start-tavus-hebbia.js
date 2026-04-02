@@ -7,6 +7,7 @@ const {
     AVAILABLE_MODES,
     createMockConversation,
     DEFAULT_MODE,
+    DEFAULT_PERSONA_VERSION,
     DEFAULT_REPLICA_ID,
 } = require('./lib/tavusHebbiaMock');
 
@@ -16,7 +17,8 @@ function parseArgs(argv) {
         mode: DEFAULT_MODE,
         open: false,
         testMode: false,
-        personaId: process.env.TAVUS_HEBBIA_ZAYD_PERSONA_ID || '',
+        forceNewPersona: false,
+        personaId: '',
         replicaId: DEFAULT_REPLICA_ID,
     };
 
@@ -26,6 +28,9 @@ function parseArgs(argv) {
             options.open = true;
         } else if (arg === '--test') {
             options.testMode = true;
+        } else if (arg === '--refresh-persona') {
+            options.forceNewPersona = true;
+            options.personaId = '';
         } else if (arg === '--video') {
             options.audioOnly = false;
         } else if (arg === '--audio-only') {
@@ -57,6 +62,7 @@ Options:
   --audio-only          Force audio-only mode (default)
   --open                Open the returned conversation URL in the browser
   --test                Create a Tavus test conversation without incurring call cost
+  --refresh-persona     Ignore the saved persona and create a fresh one from the current prompt
   --persona-id <id>     Reuse an existing Tavus persona instead of creating a new one
   --replica-id <id>     Override the Tavus replica to use
   --help                Show this help text
@@ -64,7 +70,8 @@ Options:
 Environment:
   TAVUS_API_KEY
   TAVUS_REPLICA_ID
-  TAVUS_HEBBIA_ZAYD_PERSONA_ID`);
+  TAVUS_HEBBIA_ZAYD_PERSONA_ID
+  TAVUS_HEBBIA_ZAYD_PERSONA_VERSION=current ${DEFAULT_PERSONA_VERSION}`);
 }
 
 function openUrl(url) {
@@ -81,7 +88,7 @@ async function main() {
 
     console.log(`Persona ID: ${result.personaId}${result.personaCreated ? ' (new)' : ' (reused)'}`);
     if (result.personaCreated) {
-        console.log('Tip: add TAVUS_HEBBIA_ZAYD_PERSONA_ID to .env to reuse this persona later.');
+        console.log(`Tip: add TAVUS_HEBBIA_ZAYD_PERSONA_ID=${result.personaId} and TAVUS_HEBBIA_ZAYD_PERSONA_VERSION=${DEFAULT_PERSONA_VERSION} to .env to reuse this persona later.`);
     }
     console.log(`Conversation ID: ${result.conversation.conversation_id}`);
     console.log(`Conversation URL: ${result.conversation.conversation_url}`);

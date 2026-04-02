@@ -5548,7 +5548,7 @@ var SummaryView = class extends ut {
     const data = this.structuredData || { summary: [], topic: { header: "", bullets: [] }, actions: [] };
     let sections = [];
     if (data.summary && data.summary.length > 0) {
-      sections.push(`What To Say Now:
+      sections.push(`Hints:
 ${data.summary.map((s2) => `\u2022 ${s2}`).join("\n")}`);
     }
     if (data.topic && data.topic.header && data.topic.bullets.length > 0) {
@@ -5558,7 +5558,7 @@ ${data.topic.bullets.map((b2) => `\u2022 ${b2}`).join("\n")}`);
     }
     if (data.actions && data.actions.length > 0) {
       sections.push(`
-Next Moves:
+Suggestions:
 ${data.actions.map((a2) => `\u25B8 ${a2}`).join("\n")}`);
     }
     if (data.followUps && data.followUps.length > 0) {
@@ -5585,7 +5585,7 @@ ${data.followUps.map((f2) => `\u25B8 ${f2}`).join("\n")}`);
     return H`
             <div class="insights-container">
                 ${!hasAnyContent ? H`<div class="empty-state">No live help yet...</div>` : H`
-                        <insights-title>What To Say Now</insights-title>
+                        <insights-title>Hints</insights-title>
                         ${data.summary.length > 0 ? data.summary.slice(0, 5).map(
       (bullet, index) => H`
                                           <div
@@ -5614,7 +5614,7 @@ ${data.followUps.map((f2) => `\u25B8 ${f2}`).join("\n")}`);
     )}
                               ` : ""}
                         ${data.actions.length > 0 ? H`
-                                  <insights-title>Next Moves</insights-title>
+                                  <insights-title>Suggestions</insights-title>
                                   ${data.actions.slice(0, 5).map(
       (action, index) => H`
                                               <div

@@ -52,6 +52,11 @@ class OllamaService extends EventEmitter {
         this._syncInterval = null;
         this._lastLoadedModels = [];
         this.modelLoadStatus = new Map();
+        this._lastHealthFailureLog = {
+            message: null,
+            timestamp: 0,
+        };
+        this._healthFailureLogCooldownMs = 5 * 60 * 1000;
         
         // 서비스 종료 상태 추적
         this.isShuttingDown = false;
@@ -97,6 +102,31 @@ class OllamaService extends EventEmitter {
         this.installationProgress.delete(modelName);
     }
 
+    _resetHealthFailureLog() {
+        this._lastHealthFailureLog = {
+            message: null,
+            timestamp: 0,
+        };
+    }
+
+    _shouldLogHealthFailure(message, quiet = false) {
+        if (quiet) return false;
+
+        const now = Date.now();
+        const lastLog = this._lastHealthFailureLog;
+
+        if (lastLog.message === message && now - lastLog.timestamp < this._healthFailureLogCooldownMs) {
+            return false;
+        }
+
+        this._lastHealthFailureLog = {
+            message,
+            timestamp: now,
+        };
+
+        return true;
+    }
+
     async getStatus() {
         try {
             const installed = await this.isInstalled();
@@ -104,7 +134,7 @@ class OllamaService extends EventEmitter {
                 return { success: true, installed: false, running: false, models: [] };
             }
 
-            const running = await this.isServiceRunning();
+            const running = await this.isServiceRunning({ quiet: true });
             if (!running) {
                 return { success: true, installed: true, running: false, models: [] };
             }
@@ -172,17 +202,25 @@ class OllamaService extends EventEmitter {
         }
     }
 
-    async isServiceRunning() {
+    async isServiceRunning(options = {}) {
+        const quiet = options.quiet === true;
+
         try {
             // Use /api/ps to check if service is running
             // This is more reliable than /api/tags which may not show models not in memory
             const response = await this.makeRequest('/api/ps', {
                 method: 'GET'
             });
+
+            if (response.ok) {
+                this._resetHealthFailureLog();
+            }
             
             return response.ok;
         } catch (error) {
-            console.log(`[OllamaService] Service health check failed: ${error.message}`);
+            if (this._shouldLogHealthFailure(error.message, quiet)) {
+                console.log(`[OllamaService] Service health check failed: ${error.message}`);
+            }
             return false;
         }
     }
@@ -857,7 +895,7 @@ class OllamaService extends EventEmitter {
         
         try {
             const isInstalled = await this.isInstalled();
-            const isRunning = await this.isServiceRunning();
+            const isRunning = await this.isServiceRunning({ quiet: true });
             const models = isRunning && !this.isShuttingDown ? await this.getInstalledModels() : [];
             const loadedModels = isRunning && !this.isShuttingDown ? await this.getLoadedModels() : [];
             
@@ -1304,7 +1342,7 @@ class OllamaService extends EventEmitter {
                 return { success: true, installed: false, running: false, models: [] };
             }
 
-            const running = await this.isServiceRunning();
+            const running = await this.isServiceRunning({ quiet: true });
             if (!running) {
                 return { success: true, installed: true, running: false, models: [] };
             }

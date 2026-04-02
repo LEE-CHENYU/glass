@@ -64,8 +64,8 @@ async function loadConfig() {
 
     audioOnlyInput.checked = config.defaultAudioOnly;
     configText.textContent = config.hasSavedPersona
-        ? `Saved Tavus persona found. Launches should be faster. Replica: ${config.replicaId}.`
-        : `No saved Tavus persona found yet. First launch will create one. Replica: ${config.replicaId}.`;
+        ? `Saved Tavus persona found for prompt ${config.personaVersion}. Launches should be faster. Replica: ${config.replicaId}.`
+        : `No compatible saved Tavus persona found for prompt ${config.personaVersion}. First launch will create one. Replica: ${config.replicaId}.`;
 }
 
 launchForm.addEventListener('submit', async (event) => {

@@ -5,8 +5,9 @@ function getAskResponseBudget(selection = '') {
             temperature: 0.35,
             guidance: `LATENCY MODE:
 - Optimize for fastest useful answer.
-- Default to 1 short headline and at most 2 bullets.
-- Lead with the next sentence the user can say immediately.
+- Default to 1 short headline and 2-4 bullets.
+- Give hints, suggestions, and findings instead of scripted answers.
+- Lead with the strongest angle, example, or risk.
 - Keep total output under roughly 90 words unless the user explicitly asks for depth.
 - Skip meta-analysis, repetition, and long framing.`,
         };
@@ -38,10 +39,10 @@ function getListenResponseBudget(selection = '') {
             maxTokens: 220,
             temperature: 0.2,
             guidance: `LIVE COACHING LATENCY MODE:
-- Prioritize what the user should say in the next 10 seconds.
+- Prioritize the best hint for the next 10 seconds.
 - Keep total output under roughly 80 words.
-- Use at most 2 bullets in "What To Say Now", 2 bullets in "Current Focus", and 2 numbered "Next Moves".
-- Prefer ready-to-speak fragments over explanation.`,
+- Use at most 2 bullets in "Hints", 3 bullets in "Findings", and 2 numbered "Suggestions".
+- Give answer ingredients, not a finished script.`,
         };
     }
 

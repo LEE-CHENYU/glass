@@ -83,9 +83,9 @@ class SummaryService {
         if (this.previousAnalysisResult) {
             contextualPrompt = `
 Previous Coaching Context:
-- Current Focus: ${this.previousAnalysisResult.topic.header}
-- What To Say Now: ${this.previousAnalysisResult.summary.slice(0, 3).join(', ')}
-- Next Moves: ${this.previousAnalysisResult.actions.slice(0, 2).join(', ')}
+- Findings: ${this.previousAnalysisResult.topic.header}
+- Hints: ${this.previousAnalysisResult.summary.slice(0, 3).join(', ')}
+- Suggestions: ${this.previousAnalysisResult.actions.slice(0, 2).join(', ')}
 
 Build on this context, but update it if the conversation has clearly shifted.
 `;
@@ -118,26 +118,27 @@ Build on this context, but update it if the conversation has clearly shifted.
 
 Provide live interview help, not post-hoc analysis. Format your response exactly like this:
 
-**What To Say Now**
-- First ready-to-say line or answer angle
-- Second short supporting line, example, or fallback
+**Hints**
+- First answer direction, angle, or fact to use
+- Second supporting example, number, or caution
 
-**Current Focus: [Short Label]**
+**Findings: [Short Label]**
 - What the interviewer is really testing
-- Which story, fact, or number to use
+- Which story, fact, or number matters most
 - What to avoid, trim, or not over-explain
 
-**Next Moves**
-1. The next sentence to say, or the next question to ask if it is Cheney's turn
-2. A second option if the conversation shifts
+**Suggestions**
+1. The best next move or answer angle
+2. A fallback move if the conversation shifts
 
 Rules:
-- Prioritize what Cheney should say in the next 10 seconds
-- Keep each bullet short enough to glance and speak
+- Prioritize what Cheney should keep in mind in the next 10 seconds
+- Keep each bullet short enough to glance quickly
 - Keep the whole response very short
-- If the interviewer asked a direct question, draft answer fragments, not commentary
+- If the interviewer asked a direct question, give answer ingredients, not a finished response
 - If no clear question has been asked yet, suggest how to steer the conversation
-- Avoid generic analysis, long summaries, and post-meeting advice`,
+- Avoid generic analysis, long summaries, and post-meeting advice
+- Do not write a polished script unless explicitly asked`,
                 },
             ];
 
@@ -215,22 +216,37 @@ Rules:
                 const trimmedLine = line.trim();
 
                 // 섹션 헤더 감지
-                if (trimmedLine.startsWith('**What To Say Now**') || trimmedLine.startsWith('**Summary Overview**')) {
+                if (
+                    trimmedLine.startsWith('**Hints**') ||
+                    trimmedLine.startsWith('**What To Say Now**') ||
+                    trimmedLine.startsWith('**Summary Overview**')
+                ) {
                     currentSection = 'summary';
                     continue;
-                } else if (trimmedLine.startsWith('**Current Focus:') || trimmedLine.startsWith('**Key Topic:')) {
+                } else if (
+                    trimmedLine.startsWith('**Findings:') ||
+                    trimmedLine.startsWith('**Current Focus:') ||
+                    trimmedLine.startsWith('**Key Topic:')
+                ) {
                     currentSection = 'topic';
                     topicName =
+                        trimmedLine.match(/\*\*Findings: (.+?)\*\*/)?.[1] ||
                         trimmedLine.match(/\*\*Current Focus: (.+?)\*\*/)?.[1] ||
                         trimmedLine.match(/\*\*Key Topic: (.+?)\*\*/)?.[1] ||
                         '';
                     structuredData.topic.header = topicName
-                        ? trimmedLine.startsWith('**Current Focus:')
+                        ? trimmedLine.startsWith('**Findings:')
+                            ? `Findings: ${topicName}`
+                            : trimmedLine.startsWith('**Current Focus:')
                             ? `Current Focus: ${topicName}`
                             : `${topicName}:`
-                        : 'Current Focus';
+                        : 'Findings';
                     continue;
-                } else if (trimmedLine.startsWith('**Next Moves**') || trimmedLine.startsWith('**Suggested Questions**')) {
+                } else if (
+                    trimmedLine.startsWith('**Suggestions**') ||
+                    trimmedLine.startsWith('**Next Moves**') ||
+                    trimmedLine.startsWith('**Suggested Questions**')
+                ) {
                     currentSection = 'actions';
                     continue;
                 }
@@ -282,7 +298,7 @@ Rules:
             return (
                 previousResult || {
                     summary: [],
-                    topic: { header: 'Current Focus', bullets: [] },
+                    topic: { header: 'Findings', bullets: [] },
                     actions: ['✨ Give me a tighter answer', '💬 What should I say next?'],
                     followUps: ['✉️ Send a thank-you note', '📝 Log strongest examples', '✅ Write next-step follow-ups'],
                 }
