@@ -456,6 +456,7 @@ class SttService {
         
         const sttOptions = {
             apiKey: this.modelInfo.apiKey,
+            model: this.modelInfo.model,
             language: effectiveLanguage,
             usePortkey: this.modelInfo.provider === 'openai-glass',
             portkeyVirtualKey: this.modelInfo.provider === 'openai-glass' ? this.modelInfo.apiKey : undefined,
@@ -500,7 +501,7 @@ class SttService {
     _sendKeepAlive() {
         if (!this.isSessionActive()) return;
 
-        if (this.modelInfo?.provider === 'openai') {
+        if (['openai', 'openai-glass', 'aquavoice'].includes(this.modelInfo?.provider)) {
             try {
                 this.mySttSession?.keepAlive?.();
                 this.theirSttSession?.keepAlive?.();

@@ -1,5 +1,5 @@
 const { BrowserWindow } = require('electron');
-const { getSystemPrompt } = require('../../common/prompts/promptBuilder.js');
+const { resolveActiveSystemPrompt } = require('../../common/prompts/activePromptResolver.js');
 const { createLLM } = require('../../common/ai/factory');
 const sessionRepository = require('../../common/repositories/session');
 const summaryRepository = require('./repositories');
@@ -90,9 +90,8 @@ Please build upon this context while analyzing the new conversation segments.
 `;
         }
 
-        const activeProfile = global.tarsActiveProfile || 'hebbia';
-        const basePrompt = getSystemPrompt(activeProfile, recentConversation, false);
-        const systemPrompt = basePrompt;
+        const { systemPrompt, selection } = await resolveActiveSystemPrompt(recentConversation);
+        console.log(`[SummaryService] Active prompt selection: ${selection}`);
 
         try {
             if (this.currentSessionId) {

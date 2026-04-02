@@ -18,6 +18,7 @@ class ModelStateService extends EventEmitter {
         console.log('[ModelStateService] Initializing one-time setup...');
         await this._initializeEncryption();
         await this._runMigrations();
+        await this._hydrateApiKeysFromEnv();
         this.setupLocalAIStateSync();
         await this._autoSelectAvailableModels([], true);
         console.log('[ModelStateService] One-time setup complete.');
@@ -91,6 +92,30 @@ class ModelStateService extends EventEmitter {
             }
         } catch (error) {
             console.error('[ModelStateService] electron-store migration failed:', error);
+        }
+    }
+
+    async _hydrateApiKeysFromEnv() {
+        const envProviderMap = {
+            aquavoice: ['AQUA_VOICE_API_KEY', 'AVALON_API_KEY'],
+        };
+
+        for (const [provider, envNames] of Object.entries(envProviderMap)) {
+            const envKey = envNames
+                .map(name => process.env[name])
+                .find(value => typeof value === 'string' && value.trim().length > 0);
+
+            if (!envKey) continue;
+
+            const existingSettings = await providerSettingsRepository.getByProvider(provider);
+            if (existingSettings?.api_key) continue;
+
+            await providerSettingsRepository.upsert(provider, {
+                ...existingSettings,
+                api_key: envKey.trim(),
+            });
+
+            console.log(`[ModelStateService] Seeded ${provider} API key from environment.`);
         }
     }
     

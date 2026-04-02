@@ -3647,7 +3647,7 @@ var WelcomeHeader = class extends ut {
                     <div class="option-content">
                         <div class="option-title">Enter your API keys</div>
                         <div class="option-description">
-                            Add your LLM key (OpenAI, Anthropic, Gemini)<br/>Add your Aqua Voice key for Avalon STT<br/>All keys stored locally
+                            Add your LLM key (OpenAI, Anthropic, Gemini)<br/>STT via OpenAI Realtime API<br/>All keys stored locally
                         </div>
                     </div>
                     <button class="action-button" @click=${this.apiKeyCallback}>

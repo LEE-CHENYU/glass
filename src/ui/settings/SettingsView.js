@@ -1,6 +1,15 @@
 import { html, css, LitElement } from '../assets/lit-core-2.7.4.min.js';
 // import { getOllamaProgressTracker } from '../../features/common/services/localProgressTracker.js'; // 제거됨
 
+const LEGACY_PROMPT_OPTIONS = [
+    { id: 'profile:hebbia', label: 'Hebbia Interview' },
+    { id: 'profile:rogo', label: 'Rogo Interview' },
+    { id: 'profile:meridian', label: 'Meridian Interview' },
+    { id: 'profile:addepar', label: 'Addepar Interview' },
+    { id: 'profile:savvy', label: 'Savvy Interview' },
+    { id: 'profile:general', label: 'General Interview' },
+];
+
 export class SettingsView extends LitElement {
     static styles = css`
         * {
@@ -253,6 +262,15 @@ export class SettingsView extends LitElement {
             margin-bottom: 4px;
         }
 
+        .preset-subheading {
+            margin: 8px 0 4px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
         .preset-title {
             font-size: 11px;
             font-weight: 500;
@@ -496,6 +514,7 @@ export class SettingsView extends LitElement {
         isSttListVisible: { type: Boolean },
         presets: { type: Array, state: true },
         selectedPreset: { type: Object, state: true },
+        activePromptSelection: { type: String, state: true },
         showPresets: { type: Boolean, state: true },
         autoUpdateEnabled: { type: Boolean, state: true },
         autoUpdateLoading: { type: Boolean, state: true },
@@ -526,6 +545,7 @@ export class SettingsView extends LitElement {
         this.isSttListVisible = false;
         this.presets = [];
         this.selectedPreset = null;
+        this.activePromptSelection = 'profile:hebbia';
         this.showPresets = false;
         // Ollama related
         this.ollamaStatus = { installed: false, running: false };
@@ -613,10 +633,11 @@ export class SettingsView extends LitElement {
         this.isLoading = true;
         try {
             // Load essential data first
-            const [userState, modelSettings, presets, contentProtection, shortcuts] = await Promise.all([
+            const [userState, modelSettings, presets, activePromptSelection, contentProtection, shortcuts] = await Promise.all([
                 window.api.settingsView.getCurrentUser(),
                 window.api.settingsView.getModelSettings(), // Facade call
                 window.api.settingsView.getPresets(),
+                window.api.settingsView.getActivePromptSelection(),
                 window.api.settingsView.getContentProtectionStatus(),
                 window.api.settingsView.getCurrentShortcuts()
             ]);
@@ -634,6 +655,7 @@ export class SettingsView extends LitElement {
             }
 
             this.presets = presets || [];
+            this.activePromptSelection = activePromptSelection || 'profile:hebbia';
             this.isContentProtectionOn = contentProtection;
             this.shortcuts = shortcuts || {};
             if (this.presets.length > 0) {
@@ -965,6 +987,9 @@ export class SettingsView extends LitElement {
         this._settingsUpdatedListener = (event, settings) => {
             console.log('[SettingsView] Received settings-updated');
             this.settings = settings;
+            if (settings?.profile) {
+                this.activePromptSelection = settings.profile;
+            }
             this.requestUpdate();
         };
 
@@ -1092,6 +1117,25 @@ export class SettingsView extends LitElement {
         this.selectedPreset = preset;
         // Here you could implement preset application logic
         console.log('Selected preset:', preset);
+    }
+
+    async handleActivePromptSelect(selection) {
+        if (!window.api || this.saving || this.activePromptSelection === selection) return;
+
+        this.saving = true;
+        try {
+            const result = await window.api.settingsView.setActivePromptSelection(selection);
+            if (result?.success) {
+                this.activePromptSelection = selection;
+            } else {
+                console.error('Failed to set active prompt selection:', result?.error);
+            }
+        } catch (error) {
+            console.error('Failed to set active prompt selection:', error);
+        } finally {
+            this.saving = false;
+            this.requestUpdate();
+        }
     }
 
     handleMoveLeft() {
@@ -1347,6 +1391,12 @@ export class SettingsView extends LitElement {
             </div>
         `;
 
+        const presetPromptOptions = this.presets.map((preset) => ({
+            id: `preset:${preset.id}`,
+            label: preset.title,
+            meta: preset.is_default === 1 ? 'Preset' : 'Custom',
+        }));
+
         return html`
             <div class="settings-container">
                 <div class="header-section">
@@ -1385,6 +1435,32 @@ export class SettingsView extends LitElement {
                             </div>
                         </div>
                     `)}
+                </div>
+
+                <div class="preset-section">
+                    <div class="preset-header">
+                        <span class="preset-title">Active Prompt</span>
+                    </div>
+                    <div class="preset-list">
+                        <div class="preset-subheading">Interview Profiles</div>
+                        ${LEGACY_PROMPT_OPTIONS.map(option => html`
+                            <div class="preset-item ${this.activePromptSelection === option.id ? 'selected' : ''}"
+                                 @click=${() => this.handleActivePromptSelect(option.id)}>
+                                <span class="preset-name">${option.label}</span>
+                                ${this.activePromptSelection === option.id ? html`<span class="preset-status">Active</span>` : ''}
+                            </div>
+                        `)}
+                        <div class="preset-subheading">Prompt Presets</div>
+                        ${presetPromptOptions.map(option => html`
+                            <div class="preset-item ${this.activePromptSelection === option.id ? 'selected' : ''}"
+                                 @click=${() => this.handleActivePromptSelect(option.id)}>
+                                <span class="preset-name">${option.label}</span>
+                                ${this.activePromptSelection === option.id
+                                    ? html`<span class="preset-status">Active</span>`
+                                    : html`<span class="preset-status">${option.meta}</span>`}
+                            </div>
+                        `)}
+                    </div>
                 </div>
 
                 <div class="preset-section">

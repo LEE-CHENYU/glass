@@ -202,7 +202,7 @@ let currentSettings = null;
 function getDefaultSettings() {
     const isMac = process.platform === 'darwin';
     return {
-        profile: 'school',
+        profile: 'profile:hebbia',
         language: 'en',
         screenshotInterval: '5000',
         imageQuality: '0.8',
@@ -420,6 +420,27 @@ async function setAutoUpdateSetting(isEnabled) {
     }
 }
 
+async function getActivePromptSelection() {
+    try {
+        const settings = await getSettings();
+        return settings.profile || 'profile:hebbia';
+    } catch (error) {
+        console.error('[SettingsService] Error getting active prompt selection:', error);
+        return 'profile:hebbia';
+    }
+}
+
+async function setActivePromptSelection(selection) {
+    try {
+        const settings = await getSettings();
+        settings.profile = selection;
+        return await saveSettings(settings);
+    } catch (error) {
+        console.error('[SettingsService] Error setting active prompt selection:', error);
+        return { success: false, error: error.message };
+    }
+}
+
 function initialize() {
     // cleanup 
     windowNotificationManager.cleanup();
@@ -456,6 +477,8 @@ module.exports = {
     updateContentProtection,
     getAutoUpdateSetting,
     setAutoUpdateSetting,
+    getActivePromptSelection,
+    setActivePromptSelection,
     // Model settings facade
     getModelSettings,
     clearApiKey,

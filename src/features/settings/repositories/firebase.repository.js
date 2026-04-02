@@ -2,6 +2,7 @@ const { collection, doc, addDoc, getDoc, getDocs, updateDoc, deleteDoc, query, w
 const { getFirestoreInstance } = require('../../common/services/firebaseClient');
 const { createEncryptedConverter } = require('../../common/repositories/firestoreConverter');
 const encryptionService = require('../../common/services/encryptionService');
+const { mergeWithDefaultPromptPresets, sortPromptPresets } = require('../../common/prompts/defaultPresets');
 
 const userPresetConverter = createEncryptedConverter(['prompt', 'title']);
 
@@ -37,17 +38,16 @@ async function getPresets(uid) {
         ...userSnapshot.docs.map(d => d.data())
     ];
 
-    return presets.sort((a, b) => {
-        if (a.is_default && !b.is_default) return -1;
-        if (!a.is_default && b.is_default) return 1;
-        return a.title.localeCompare(b.title);
-    });
+    return mergeWithDefaultPromptPresets(presets);
 }
 
 async function getPresetTemplates() {
     const q = query(defaultPresetsCol(), orderBy('title', 'asc'));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => doc.data());
+    return sortPromptPresets(
+        mergeWithDefaultPromptPresets(snapshot.docs.map(doc => doc.data()))
+            .filter((preset) => preset.is_default),
+    );
 }
 
 async function createPreset({ uid, title, prompt }) {

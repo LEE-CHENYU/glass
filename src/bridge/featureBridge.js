@@ -18,6 +18,8 @@ module.exports = {
   initialize() {
     // Settings Service
     ipcMain.handle('settings:getPresets', async () => await settingsService.getPresets());
+    ipcMain.handle('settings:get-active-prompt-selection', async () => await settingsService.getActivePromptSelection());
+    ipcMain.handle('settings:set-active-prompt-selection', async (event, selection) => await settingsService.setActivePromptSelection(selection));
     ipcMain.handle('settings:get-auto-update', async () => await settingsService.getAutoUpdateSetting());
     ipcMain.handle('settings:set-auto-update', async (event, isEnabled) => await settingsService.setAutoUpdateSetting(isEnabled));  
     ipcMain.handle('settings:get-model-settings', async () => await settingsService.getModelSettings());

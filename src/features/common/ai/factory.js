@@ -39,6 +39,16 @@ const PROVIDERS = {
       ],
       sttModels: [],
   },
+
+  'aquavoice': {
+      name: 'Aqua Voice',
+      handler: () => require("./providers/aquavoice"),
+      llmModels: [],
+      sttModels: [
+          { id: 'avalon-v1-en', name: 'Avalon v1 (English)' },
+          { id: 'avalon-v1.1-beta', name: 'Avalon v1.1 Beta (Multilingual)' }
+      ],
+  },
 };
 
 function sanitizeModelId(model) {
@@ -101,6 +111,7 @@ function getProviderClass(providerId) {
     const classNameMap = {
         'openai': 'OpenAIProvider',
         'anthropic': 'AnthropicProvider',
+        'aquavoice': 'AquaVoiceProvider',
         'gemini': 'GeminiProvider',
     };
     

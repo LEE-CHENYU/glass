@@ -14,7 +14,7 @@ const getWindowPool = () => {
 
 const sessionRepository = require('../common/repositories/session');
 const askRepository = require('./repositories');
-const { getSystemPrompt } = require('../common/prompts/promptBuilder');
+const { resolveActiveSystemPrompt } = require('../common/prompts/activePromptResolver');
 const path = require('node:path');
 const fs = require('node:fs');
 const os = require('os');
@@ -254,9 +254,8 @@ class AskService {
 
             const conversationHistory = this._formatConversationForPrompt(conversationHistoryRaw);
 
-            // Use active interview profile (default: hebbia as the active interview)
-            const activeProfile = global.tarsActiveProfile || 'hebbia';
-            const systemPrompt = getSystemPrompt(activeProfile, conversationHistory, false);
+            const { systemPrompt, selection } = await resolveActiveSystemPrompt(conversationHistory);
+            console.log(`[AskService] Active prompt selection: ${selection}`);
 
             const messages = [
                 { role: 'system', content: systemPrompt },

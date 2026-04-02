@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hebbia Tavus Mock</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <main class="page">
+        <section class="hero">
+            <p class="eyebrow">Tavus MVP</p>
+            <h1>Hebbia Mock Interview</h1>
+            <p class="subhead">
+                Separate from Glass. Launch a Zayd-style Tavus mock interviewer with one click.
+            </p>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <h2>Session Setup</h2>
+                <p id="health-text" class="muted">Checking local config…</p>
+            </div>
+
+            <form id="launch-form" class="form">
+                <label class="field">
+                    <span>Mode</span>
+                    <select id="mode" name="mode"></select>
+                </label>
+
+                <div class="toggles">
+                    <label class="toggle">
+                        <input id="audio-only" type="checkbox" checked>
+                        <span>Audio only</span>
+                    </label>
+                    <label class="toggle">
+                        <input id="test-mode" type="checkbox">
+                        <span>Test mode</span>
+                    </label>
+                    <label class="toggle">
+                        <input id="open-tab" type="checkbox" checked>
+                        <span>Open Tavus tab</span>
+                    </label>
+                </div>
+
+                <button id="launch-button" type="submit">Launch Mock Interview</button>
+            </form>
+        </section>
+
+        <section class="panel info-grid">
+            <div>
+                <h3>What This Uses</h3>
+                <p class="muted" id="config-text">Loading saved Tavus config…</p>
+            </div>
+            <div>
+                <h3>Interviewer Bias</h3>
+                <p class="muted">
+                    Enterprise banking/compliance lens: trust, auditability, dirty data, rollout discipline, and first-30-day value.
+                </p>
+            </div>
+        </section>
+
+        <section id="result-panel" class="panel hidden">
+            <div class="panel-header">
+                <h2>Launch Result</h2>
+                <p id="result-status" class="status-chip"></p>
+            </div>
+            <div class="result-grid">
+                <div>
+                    <span class="result-label">Mode</span>
+                    <p id="result-mode" class="result-value"></p>
+                </div>
+                <div>
+                    <span class="result-label">Persona</span>
+                    <p id="result-persona" class="result-value"></p>
+                </div>
+                <div>
+                    <span class="result-label">Conversation</span>
+                    <p id="result-conversation" class="result-value"></p>
+                </div>
+                <div>
+                    <span class="result-label">URL</span>
+                    <p class="result-value">
+                        <a id="result-link" href="#" target="_blank" rel="noreferrer">Open conversation</a>
+                    </p>
+                </div>
+            </div>
+            <button id="copy-button" class="secondary" type="button">Copy URL</button>
+        </section>
+
+        <section id="error-panel" class="panel hidden error-panel">
+            <h2>Launch Error</h2>
+            <p id="error-text"></p>
+        </section>
+    </main>
+
+    <script src="/app.js" defer></script>
+</body>
+</html>

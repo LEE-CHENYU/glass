@@ -41,7 +41,7 @@ class OpenAIProvider {
  * @param {string} [opts.portkeyVirtualKey] - Portkey virtual key
  * @returns {Promise<object>} STT session
  */
-async function createSTT({ apiKey, language = 'en', callbacks = {}, usePortkey = false, portkeyVirtualKey, ...config }) {
+async function createSTT({ apiKey, model = 'gpt-4o-mini-transcribe', language = 'en', callbacks = {}, usePortkey = false, portkeyVirtualKey, ...config }) {
   const keyType = usePortkey ? 'vKey' : 'apiKey';
   const key = usePortkey ? (portkeyVirtualKey || apiKey) : apiKey;
 
@@ -71,7 +71,7 @@ async function createSTT({ apiKey, language = 'en', callbacks = {}, usePortkey =
         session: {
           input_audio_format: 'pcm16',
           input_audio_transcription: {
-            model: 'gpt-4o-mini-transcribe',
+            model,
             prompt: config.prompt || '',
             language: language || 'en'
           },

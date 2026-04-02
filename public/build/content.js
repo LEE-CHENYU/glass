@@ -3579,6 +3579,14 @@ null == ct || ct({ LitElement: ut });
 (null !== (lt = globalThis.litElementVersions) && void 0 !== lt ? lt : globalThis.litElementVersions = []).push("3.3.2");
 
 // src/ui/settings/SettingsView.js
+var LEGACY_PROMPT_OPTIONS = [
+  { id: "profile:hebbia", label: "Hebbia Interview" },
+  { id: "profile:rogo", label: "Rogo Interview" },
+  { id: "profile:meridian", label: "Meridian Interview" },
+  { id: "profile:addepar", label: "Addepar Interview" },
+  { id: "profile:savvy", label: "Savvy Interview" },
+  { id: "profile:general", label: "General Interview" }
+];
 var SettingsView = class extends ut {
   static styles = r`
         * {
@@ -3831,6 +3839,15 @@ var SettingsView = class extends ut {
             margin-bottom: 4px;
         }
 
+        .preset-subheading {
+            margin: 8px 0 4px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
         .preset-title {
             font-size: 11px;
             font-weight: 500;
@@ -4072,6 +4089,7 @@ var SettingsView = class extends ut {
     isSttListVisible: { type: Boolean },
     presets: { type: Array, state: true },
     selectedPreset: { type: Object, state: true },
+    activePromptSelection: { type: String, state: true },
     showPresets: { type: Boolean, state: true },
     autoUpdateEnabled: { type: Boolean, state: true },
     autoUpdateLoading: { type: Boolean, state: true },
@@ -4100,6 +4118,7 @@ var SettingsView = class extends ut {
     this.isSttListVisible = false;
     this.presets = [];
     this.selectedPreset = null;
+    this.activePromptSelection = "profile:hebbia";
     this.showPresets = false;
     this.ollamaStatus = { installed: false, running: false };
     this.ollamaModels = [];
@@ -4174,11 +4193,12 @@ var SettingsView = class extends ut {
     if (!window.api) return;
     this.isLoading = true;
     try {
-      const [userState, modelSettings, presets, contentProtection, shortcuts] = await Promise.all([
+      const [userState, modelSettings, presets, activePromptSelection, contentProtection, shortcuts] = await Promise.all([
         window.api.settingsView.getCurrentUser(),
         window.api.settingsView.getModelSettings(),
         // Facade call
         window.api.settingsView.getPresets(),
+        window.api.settingsView.getActivePromptSelection(),
         window.api.settingsView.getContentProtectionStatus(),
         window.api.settingsView.getCurrentShortcuts()
       ]);
@@ -4193,6 +4213,7 @@ var SettingsView = class extends ut {
         this.selectedStt = selectedModels.stt;
       }
       this.presets = presets || [];
+      this.activePromptSelection = activePromptSelection || "profile:hebbia";
       this.isContentProtectionOn = contentProtection;
       this.shortcuts = shortcuts || {};
       if (this.presets.length > 0) {
@@ -4444,6 +4465,9 @@ var SettingsView = class extends ut {
     this._settingsUpdatedListener = (event, settings) => {
       console.log("[SettingsView] Received settings-updated");
       this.settings = settings;
+      if (settings?.profile) {
+        this.activePromptSelection = settings.profile;
+      }
       this.requestUpdate();
     };
     this._presetsUpdatedListener = async (event) => {
@@ -4550,6 +4574,23 @@ var SettingsView = class extends ut {
   async handlePresetSelect(preset) {
     this.selectedPreset = preset;
     console.log("Selected preset:", preset);
+  }
+  async handleActivePromptSelect(selection) {
+    if (!window.api || this.saving || this.activePromptSelection === selection) return;
+    this.saving = true;
+    try {
+      const result = await window.api.settingsView.setActivePromptSelection(selection);
+      if (result?.success) {
+        this.activePromptSelection = selection;
+      } else {
+        console.error("Failed to set active prompt selection:", result?.error);
+      }
+    } catch (error) {
+      console.error("Failed to set active prompt selection:", error);
+    } finally {
+      this.saving = false;
+      this.requestUpdate();
+    }
   }
   handleMoveLeft() {
     console.log("Move Left clicked");
@@ -4771,6 +4812,11 @@ var SettingsView = class extends ut {
                 </div>
             </div>
         `;
+    const presetPromptOptions = this.presets.map((preset) => ({
+      id: `preset:${preset.id}`,
+      label: preset.title,
+      meta: preset.is_default === 1 ? "Preset" : "Custom"
+    }));
     return H`
             <div class="settings-container">
                 <div class="header-section">
@@ -4806,6 +4852,30 @@ var SettingsView = class extends ut {
                             </div>
                         </div>
                     `)}
+                </div>
+
+                <div class="preset-section">
+                    <div class="preset-header">
+                        <span class="preset-title">Active Prompt</span>
+                    </div>
+                    <div class="preset-list">
+                        <div class="preset-subheading">Interview Profiles</div>
+                        ${LEGACY_PROMPT_OPTIONS.map((option) => H`
+                            <div class="preset-item ${this.activePromptSelection === option.id ? "selected" : ""}"
+                                 @click=${() => this.handleActivePromptSelect(option.id)}>
+                                <span class="preset-name">${option.label}</span>
+                                ${this.activePromptSelection === option.id ? H`<span class="preset-status">Active</span>` : ""}
+                            </div>
+                        `)}
+                        <div class="preset-subheading">Prompt Presets</div>
+                        ${presetPromptOptions.map((option) => H`
+                            <div class="preset-item ${this.activePromptSelection === option.id ? "selected" : ""}"
+                                 @click=${() => this.handleActivePromptSelect(option.id)}>
+                                <span class="preset-name">${option.label}</span>
+                                ${this.activePromptSelection === option.id ? H`<span class="preset-status">Active</span>` : H`<span class="preset-status">${option.meta}</span>`}
+                            </div>
+                        `)}
+                    </div>
                 </div>
 
                 <div class="preset-section">
@@ -4927,7 +4997,7 @@ var SttView = class extends ut {
             word-wrap: break-word;
             word-break: break-word;
             line-height: 1.5;
-            font-size: 24px;
+            font-size: 18px;
             margin-bottom: 4px;
             box-sizing: border-box;
         }
@@ -4954,7 +5024,7 @@ var SttView = class extends ut {
             justify-content: center;
             height: 100px;
             color: rgba(255, 255, 255, 0.6);
-            font-size: 20px;
+            font-size: 16px;
             font-style: italic;
         }
     `;
@@ -5106,7 +5176,7 @@ var SummaryView = class extends ut {
 
         .insights-container code {
             font-family: 'Monaco', 'Menlo', 'Consolas', monospace !important;
-            font-size: 20px !important;
+            font-size: 16px !important;
             background: transparent !important;
             white-space: pre !important;
             word-wrap: normal !important;
@@ -5187,7 +5257,7 @@ var SummaryView = class extends ut {
 
         insights-title {
             color: rgba(255, 255, 255, 0.8);
-            font-size: 24px;
+            font-size: 16px;
             font-weight: 500;
             font-family: 'Helvetica Neue', sans-serif;
             margin: 12px 0 8px 0;
@@ -5196,7 +5266,7 @@ var SummaryView = class extends ut {
 
         .insights-container h4 {
             color: #ffffff;
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 600;
             margin: 12px 0 8px 0;
             padding: 4px 8px;
@@ -5215,7 +5285,7 @@ var SummaryView = class extends ut {
 
         .outline-item {
             color: #ffffff;
-            font-size: 20px;
+            font-size: 16px;
             line-height: 1.4;
             margin: 4px 0;
             padding: 6px 8px;
@@ -5232,7 +5302,7 @@ var SummaryView = class extends ut {
 
         .request-item {
             color: #ffffff;
-            font-size: 20px;
+            font-size: 16px;
             line-height: 1.2;
             margin: 4px 0;
             padding: 6px 8px;
@@ -5255,7 +5325,7 @@ var SummaryView = class extends ut {
         /* 마크다운 렌더링된 콘텐츠 스타일 */
         .markdown-content {
             color: #ffffff;
-            font-size: 20px;
+            font-size: 16px;
             line-height: 1.4;
             margin: 4px 0;
             padding: 6px 8px;
@@ -5310,7 +5380,7 @@ var SummaryView = class extends ut {
             justify-content: center;
             height: 100px;
             color: rgba(255, 255, 255, 0.6);
-            font-size: 20px;
+            font-size: 16px;
             font-style: italic;
         }
     `;
@@ -7469,7 +7539,7 @@ var AskView = class extends ut {
 
         .response-container code {
             font-family: 'Monaco', 'Menlo', 'Consolas', monospace !important;
-            font-size: 20px !important;
+            font-size: 16px !important;
             background: transparent !important;
             white-space: pre !important;
             word-wrap: normal !important;
@@ -7591,7 +7661,7 @@ var AskView = class extends ut {
         }
 
         .response-label {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 500;
             color: rgba(255, 255, 255, 0.9);
             white-space: nowrap;
@@ -7627,7 +7697,7 @@ var AskView = class extends ut {
         }
 
         .question-text {
-            font-size: 22px;
+            font-size: 18px;
             color: rgba(255, 255, 255, 0.7);
             white-space: nowrap;
             overflow: hidden;
@@ -7715,7 +7785,7 @@ var AskView = class extends ut {
             padding: 16px;
             padding-left: 48px;
             overflow-y: auto;
-            font-size: 24px;
+            font-size: 16px;
             line-height: 1.6;
             background: transparent;
             min-height: 0;
@@ -7868,7 +7938,7 @@ var AskView = class extends ut {
             outline: none;
             border: none;
             color: white;
-            font-size: 24px;
+            font-size: 16px;
             font-family: 'Helvetica Neue', sans-serif;
             font-weight: 400;
         }
@@ -7914,7 +7984,7 @@ var AskView = class extends ut {
             padding: 2px 6px;
             border-radius: 4px;
             font-family: 'Monaco', 'Menlo', monospace;
-            font-size: 22px;
+            font-size: 18px;
         }
 
         .response-line pre {
@@ -7946,7 +8016,7 @@ var AskView = class extends ut {
             justify-content: center;
             height: 100%;
             color: rgba(255, 255, 255, 0.5);
-            font-size: 24px;
+            font-size: 16px;
         }
 
         .btn-gap {
@@ -8001,7 +8071,7 @@ var AskView = class extends ut {
             border: none;
             border-radius: 6px;
             margin-left: 8px;
-            font-size: 22px;
+            font-size: 18px;
             font-family: 'Helvetica Neue', sans-serif;
             font-weight: 500;
             overflow: hidden;
@@ -8045,7 +8115,7 @@ var AskView = class extends ut {
         }
         .header-clear-btn .icon-box {
             color: white;
-            font-size: 20px;
+            font-size: 16px;
             font-family: 'Helvetica Neue', sans-serif;
             font-weight: 500;
             background-color: rgba(255, 255, 255, 0.1);
