@@ -1,5 +1,6 @@
 const { BrowserWindow } = require('electron');
 const { resolveActiveSystemPrompt } = require('../../common/prompts/activePromptResolver.js');
+const { getListenResponseBudget } = require('../../common/prompts/responseBudget');
 const { createLLM } = require('../../common/ai/factory');
 const sessionRepository = require('../../common/repositories/session');
 const summaryRepository = require('./repositories');
@@ -77,21 +78,23 @@ class SummaryService {
 
         const recentConversation = this.formatConversationForPrompt(conversationTexts, maxTurns);
 
-        // 이전 분석 결과를 프롬프트에 포함
+        // Include the previous coaching result so the helper can stay consistent.
         let contextualPrompt = '';
         if (this.previousAnalysisResult) {
             contextualPrompt = `
-Previous Analysis Context:
-- Main Topic: ${this.previousAnalysisResult.topic.header}
-- Key Points: ${this.previousAnalysisResult.summary.slice(0, 3).join(', ')}
-- Last Actions: ${this.previousAnalysisResult.actions.slice(0, 2).join(', ')}
+Previous Coaching Context:
+- Current Focus: ${this.previousAnalysisResult.topic.header}
+- What To Say Now: ${this.previousAnalysisResult.summary.slice(0, 3).join(', ')}
+- Next Moves: ${this.previousAnalysisResult.actions.slice(0, 2).join(', ')}
 
-Please build upon this context while analyzing the new conversation segments.
+Build on this context, but update it if the conversation has clearly shifted.
 `;
         }
 
         const { systemPrompt, selection } = await resolveActiveSystemPrompt(recentConversation);
+        const responseBudget = getListenResponseBudget(selection);
         console.log(`[SummaryService] Active prompt selection: ${selection}`);
+        console.log(`[SummaryService] Listen latency budget: maxTokens=${responseBudget.maxTokens}, temperature=${responseBudget.temperature}`);
 
         try {
             if (this.currentSessionId) {
@@ -102,46 +105,49 @@ Please build upon this context while analyzing the new conversation segments.
             if (!modelInfo || !modelInfo.apiKey) {
                 throw new Error('AI model or API key is not configured.');
             }
-            console.log(`🤖 Sending analysis request to ${modelInfo.provider} using model ${modelInfo.model}`);
+            console.log(`🤖 Sending coaching request to ${modelInfo.provider} using model ${modelInfo.model}`);
             
             const messages = [
                 {
                     role: 'system',
-                    content: systemPrompt,
+                    content: `${systemPrompt}\n\n${responseBudget.guidance}`,
                 },
                 {
                     role: 'user',
                     content: `${contextualPrompt}
 
-Analyze the conversation and provide a structured summary. Format your response as follows:
+Provide live interview help, not post-hoc analysis. Format your response exactly like this:
 
-**Summary Overview**
-- Main discussion point with context
+**What To Say Now**
+- First ready-to-say line or answer angle
+- Second short supporting line, example, or fallback
 
-**Key Topic: [Topic Name]**
-- First key insight
-- Second key insight
-- Third key insight
+**Current Focus: [Short Label]**
+- What the interviewer is really testing
+- Which story, fact, or number to use
+- What to avoid, trim, or not over-explain
 
-**Extended Explanation**
-Provide 2-3 sentences explaining the context and implications.
+**Next Moves**
+1. The next sentence to say, or the next question to ask if it is Cheney's turn
+2. A second option if the conversation shifts
 
-**Suggested Questions**
-1. First follow-up question?
-2. Second follow-up question?
-3. Third follow-up question?
-
-Keep all points concise and build upon previous analysis if provided.`,
+Rules:
+- Prioritize what Cheney should say in the next 10 seconds
+- Keep each bullet short enough to glance and speak
+- Keep the whole response very short
+- If the interviewer asked a direct question, draft answer fragments, not commentary
+- If no clear question has been asked yet, suggest how to steer the conversation
+- Avoid generic analysis, long summaries, and post-meeting advice`,
                 },
             ];
 
-            console.log('🤖 Sending analysis request to AI...');
+            console.log('🤖 Sending coaching request to AI...');
 
             const llm = createLLM(modelInfo.provider, {
                 apiKey: modelInfo.apiKey,
                 model: modelInfo.model,
-                temperature: 0.7,
-                maxTokens: 1024,
+                temperature: responseBudget.temperature,
+                maxTokens: responseBudget.maxTokens,
                 usePortkey: modelInfo.provider === 'openai-glass',
                 portkeyVirtualKey: modelInfo.provider === 'openai-glass' ? modelInfo.apiKey : undefined,
             });
@@ -149,7 +155,7 @@ Keep all points concise and build upon previous analysis if provided.`,
             const completion = await llm.chat(messages);
 
             const responseText = completion.content;
-            console.log(`✅ Analysis response received: ${responseText}`);
+            console.log(`✅ Coaching response received: ${responseText}`);
             const structuredData = this.parseResponseText(responseText, this.previousAnalysisResult);
 
             if (this.currentSessionId) {
@@ -191,7 +197,7 @@ Keep all points concise and build upon previous analysis if provided.`,
             summary: [],
             topic: { header: '', bullets: [] },
             actions: [],
-            followUps: ['✉️ Draft a follow-up email', '✅ Generate action items', '📝 Show summary'],
+            followUps: ['✉️ Send a thank-you note', '📝 Log strongest examples', '✅ Write next-step follow-ups'],
         };
 
         // 이전 결과가 있으면 기본값으로 사용
@@ -203,34 +209,34 @@ Keep all points concise and build upon previous analysis if provided.`,
         try {
             const lines = responseText.split('\n');
             let currentSection = '';
-            let isCapturingTopic = false;
             let topicName = '';
 
             for (const line of lines) {
                 const trimmedLine = line.trim();
 
                 // 섹션 헤더 감지
-                if (trimmedLine.startsWith('**Summary Overview**')) {
-                    currentSection = 'summary-overview';
+                if (trimmedLine.startsWith('**What To Say Now**') || trimmedLine.startsWith('**Summary Overview**')) {
+                    currentSection = 'summary';
                     continue;
-                } else if (trimmedLine.startsWith('**Key Topic:')) {
+                } else if (trimmedLine.startsWith('**Current Focus:') || trimmedLine.startsWith('**Key Topic:')) {
                     currentSection = 'topic';
-                    isCapturingTopic = true;
-                    topicName = trimmedLine.match(/\*\*Key Topic: (.+?)\*\*/)?.[1] || '';
-                    if (topicName) {
-                        structuredData.topic.header = topicName + ':';
-                    }
+                    topicName =
+                        trimmedLine.match(/\*\*Current Focus: (.+?)\*\*/)?.[1] ||
+                        trimmedLine.match(/\*\*Key Topic: (.+?)\*\*/)?.[1] ||
+                        '';
+                    structuredData.topic.header = topicName
+                        ? trimmedLine.startsWith('**Current Focus:')
+                            ? `Current Focus: ${topicName}`
+                            : `${topicName}:`
+                        : 'Current Focus';
                     continue;
-                } else if (trimmedLine.startsWith('**Extended Explanation**')) {
-                    currentSection = 'explanation';
-                    continue;
-                } else if (trimmedLine.startsWith('**Suggested Questions**')) {
-                    currentSection = 'questions';
+                } else if (trimmedLine.startsWith('**Next Moves**') || trimmedLine.startsWith('**Suggested Questions**')) {
+                    currentSection = 'actions';
                     continue;
                 }
 
                 // 컨텐츠 파싱
-                if (trimmedLine.startsWith('-') && currentSection === 'summary-overview') {
+                if (trimmedLine.startsWith('-') && currentSection === 'summary') {
                     const summaryPoint = trimmedLine.substring(1).trim();
                     if (summaryPoint && !structuredData.summary.includes(summaryPoint)) {
                         // 기존 summary 업데이트 (최대 5개 유지)
@@ -244,28 +250,16 @@ Keep all points concise and build upon previous analysis if provided.`,
                     if (bullet && structuredData.topic.bullets.length < 3) {
                         structuredData.topic.bullets.push(bullet);
                     }
-                } else if (currentSection === 'explanation' && trimmedLine) {
-                    // explanation을 topic bullets에 추가 (문장 단위로)
-                    const sentences = trimmedLine
-                        .split(/\.\s+/)
-                        .filter(s => s.trim().length > 0)
-                        .map(s => s.trim() + (s.endsWith('.') ? '' : '.'));
-
-                    sentences.forEach(sentence => {
-                        if (structuredData.topic.bullets.length < 3 && !structuredData.topic.bullets.includes(sentence)) {
-                            structuredData.topic.bullets.push(sentence);
-                        }
-                    });
-                } else if (trimmedLine.match(/^\d+\./) && currentSection === 'questions') {
-                    const question = trimmedLine.replace(/^\d+\.\s*/, '').trim();
-                    if (question && question.includes('?')) {
-                        structuredData.actions.push(`❓ ${question}`);
+                } else if (trimmedLine.match(/^\d+\./) && currentSection === 'actions') {
+                    const move = trimmedLine.replace(/^\d+\.\s*/, '').trim();
+                    if (move) {
+                        structuredData.actions.push(move);
                     }
                 }
             }
 
             // 기본 액션 추가
-            const defaultActions = ['✨ What should I say next?', '💬 Suggest follow-up questions'];
+            const defaultActions = ['✨ Give me a tighter answer', '💬 What should I say next?'];
             defaultActions.forEach(action => {
                 if (!structuredData.actions.includes(action)) {
                     structuredData.actions.push(action);
@@ -288,9 +282,9 @@ Keep all points concise and build upon previous analysis if provided.`,
             return (
                 previousResult || {
                     summary: [],
-                    topic: { header: 'Analysis in progress', bullets: [] },
-                    actions: ['✨ What should I say next?', '💬 Suggest follow-up questions'],
-                    followUps: ['✉️ Draft a follow-up email', '✅ Generate action items', '📝 Show summary'],
+                    topic: { header: 'Current Focus', bullets: [] },
+                    actions: ['✨ Give me a tighter answer', '💬 What should I say next?'],
+                    followUps: ['✉️ Send a thank-you note', '📝 Log strongest examples', '✅ Write next-step follow-ups'],
                 }
             );
         }

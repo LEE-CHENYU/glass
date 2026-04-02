@@ -627,9 +627,9 @@ export class ListenView extends LitElement {
         const displayText = this.isHovering
             ? this.viewMode === 'transcript'
                 ? 'Copy Transcript'
-                : 'Copy Glass Analysis'
+                : 'Copy Interview Help'
             : this.viewMode === 'insights'
-            ? `Live insights`
+            ? `Live interview help`
             : `Tars Listening ${this.elapsedTime}`;
 
         return html`
@@ -653,7 +653,7 @@ export class ListenView extends LitElement {
                                           <path d="M9 11l3 3L22 4" />
                                           <path d="M22 12v7a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h11" />
                                       </svg>
-                                      <span>Show Insights</span>
+                                      <span>Show Interview Help</span>
                                   `}
                         </button>
                         <button

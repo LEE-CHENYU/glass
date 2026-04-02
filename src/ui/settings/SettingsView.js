@@ -2,7 +2,7 @@ import { html, css, LitElement } from '../assets/lit-core-2.7.4.min.js';
 // import { getOllamaProgressTracker } from '../../features/common/services/localProgressTracker.js'; // 제거됨
 
 const LEGACY_PROMPT_OPTIONS = [
-    { id: 'profile:hebbia', label: 'Hebbia Interview' },
+    { id: 'profile:hebbia', label: 'Hebbia Solutions Engineer' },
     { id: 'profile:rogo', label: 'Rogo Interview' },
     { id: 'profile:meridian', label: 'Meridian Interview' },
     { id: 'profile:addepar', label: 'Addepar Interview' },

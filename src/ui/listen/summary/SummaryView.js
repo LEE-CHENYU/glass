@@ -404,7 +404,7 @@ export class SummaryView extends LitElement {
     }
 
     async handleRequestClick(requestText) {
-        console.log('🔥 Analysis request clicked:', requestText);
+        console.log('🔥 Coaching request clicked:', requestText);
 
         if (window.api) {
             try {
@@ -426,19 +426,19 @@ export class SummaryView extends LitElement {
         let sections = [];
 
         if (data.summary && data.summary.length > 0) {
-            sections.push(`Current Summary:\n${data.summary.map(s => `• ${s}`).join('\n')}`);
+            sections.push(`What To Say Now:\n${data.summary.map(s => `• ${s}`).join('\n')}`);
         }
 
         if (data.topic && data.topic.header && data.topic.bullets.length > 0) {
-            sections.push(`\n${data.topic.header}:\n${data.topic.bullets.map(b => `• ${b}`).join('\n')}`);
+            sections.push(`\n${data.topic.header}\n${data.topic.bullets.map(b => `• ${b}`).join('\n')}`);
         }
 
         if (data.actions && data.actions.length > 0) {
-            sections.push(`\nActions:\n${data.actions.map(a => `▸ ${a}`).join('\n')}`);
+            sections.push(`\nNext Moves:\n${data.actions.map(a => `▸ ${a}`).join('\n')}`);
         }
 
         if (data.followUps && data.followUps.length > 0) {
-            sections.push(`\nFollow-Ups:\n${data.followUps.map(f => `▸ ${f}`).join('\n')}`);
+            sections.push(`\nAfter Interview:\n${data.followUps.map(f => `▸ ${f}`).join('\n')}`);
         }
 
         return sections.join('\n\n').trim();
@@ -465,9 +465,9 @@ export class SummaryView extends LitElement {
         return html`
             <div class="insights-container">
                 ${!hasAnyContent
-                    ? html`<div class="empty-state">No insights yet...</div>`
+                    ? html`<div class="empty-state">No live help yet...</div>`
                     : html`
-                        <insights-title>Current Summary</insights-title>
+                        <insights-title>What To Say Now</insights-title>
                         ${data.summary.length > 0
                             ? data.summary
                                   .slice(0, 5)
@@ -505,7 +505,7 @@ export class SummaryView extends LitElement {
                             : ''}
                         ${data.actions.length > 0
                             ? html`
-                                  <insights-title>Actions</insights-title>
+                                  <insights-title>Next Moves</insights-title>
                                   ${data.actions
                                       .slice(0, 5)
                                       .map(
@@ -524,7 +524,7 @@ export class SummaryView extends LitElement {
                             : ''}
                         ${this.hasCompletedRecording && data.followUps && data.followUps.length > 0
                             ? html`
-                                  <insights-title>Follow-Ups</insights-title>
+                                  <insights-title>After Interview</insights-title>
                                   ${data.followUps.map(
                                       (followUp, index) => html`
                                           <div

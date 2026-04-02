@@ -1,7 +1,7 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 const LATEST_SCHEMA = require('../config/schema');
-const { getDefaultPromptPresets } = require('../prompts/defaultPresets');
+const { getDefaultPromptPresetIds, getDefaultPromptPresets } = require('../prompts/defaultPresets');
 
 class SQLiteClient {
     constructor() {
@@ -241,6 +241,16 @@ class SQLiteClient {
                 preset.is_default,
                 now,
             );
+        }
+
+        const defaultPresetIds = getDefaultPromptPresetIds();
+        if (defaultPresetIds.length > 0) {
+            const placeholders = defaultPresetIds.map(() => '?').join(', ');
+            this.db.prepare(
+                `DELETE FROM prompt_presets WHERE is_default = 1 AND id NOT IN (${placeholders})`
+            ).run(...defaultPresetIds);
+        } else {
+            this.db.prepare('DELETE FROM prompt_presets WHERE is_default = 1').run();
         }
 
         console.log('Default data initialized.');

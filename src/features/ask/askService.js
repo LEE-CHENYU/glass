@@ -15,6 +15,7 @@ const getWindowPool = () => {
 const sessionRepository = require('../common/repositories/session');
 const askRepository = require('./repositories');
 const { resolveActiveSystemPrompt } = require('../common/prompts/activePromptResolver');
+const { getAskResponseBudget } = require('../common/prompts/responseBudget');
 const path = require('node:path');
 const fs = require('node:fs');
 const os = require('os');
@@ -255,10 +256,15 @@ class AskService {
             const conversationHistory = this._formatConversationForPrompt(conversationHistoryRaw);
 
             const { systemPrompt, selection } = await resolveActiveSystemPrompt(conversationHistory);
+            const responseBudget = getAskResponseBudget(selection);
             console.log(`[AskService] Active prompt selection: ${selection}`);
+            console.log(`[AskService] Ask latency budget: maxTokens=${responseBudget.maxTokens}, temperature=${responseBudget.temperature}`);
 
             const messages = [
-                { role: 'system', content: systemPrompt },
+                {
+                    role: 'system',
+                    content: `${systemPrompt}\n\n${responseBudget.guidance}`,
+                },
                 {
                     role: 'user',
                     content: [
@@ -277,8 +283,8 @@ class AskService {
             const streamingLLM = createStreamingLLM(modelInfo.provider, {
                 apiKey: modelInfo.apiKey,
                 model: modelInfo.model,
-                temperature: 0.7,
-                maxTokens: 2048,
+                temperature: responseBudget.temperature,
+                maxTokens: responseBudget.maxTokens,
                 usePortkey: modelInfo.provider === 'openai-glass',
                 portkeyVirtualKey: modelInfo.provider === 'openai-glass' ? modelInfo.apiKey : undefined,
             });
@@ -309,7 +315,10 @@ class AskService {
                     
                     // 텍스트만으로 메시지 재구성
                     const textOnlyMessages = [
-                        { role: 'system', content: systemPrompt },
+                        {
+                            role: 'system',
+                            content: `${systemPrompt}\n\n${responseBudget.guidance}`,
+                        },
                         {
                             role: 'user',
                             content: `User Request: ${userPrompt.trim()}`

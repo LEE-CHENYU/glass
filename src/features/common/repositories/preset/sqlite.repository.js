@@ -1,4 +1,5 @@
 const sqliteClient = require('../../services/sqliteClient');
+const { mergeWithDefaultPromptPresets, sortPromptPresets } = require('../../prompts/defaultPresets');
 
 function getPresets(uid) {
     const db = sqliteClient.getDb();
@@ -9,7 +10,7 @@ function getPresets(uid) {
     `;
     
     try {
-        return db.prepare(query).all(uid);
+        return sortPromptPresets(mergeWithDefaultPromptPresets(db.prepare(query).all(uid)));
     } catch (err) {
         console.error('SQLite: Failed to get presets:', err);
         throw err;
@@ -25,7 +26,9 @@ function getPresetTemplates() {
     `;
     
     try {
-        return db.prepare(query).all();
+        return sortPromptPresets(
+            mergeWithDefaultPromptPresets(db.prepare(query).all()).filter((preset) => preset.is_default),
+        );
     } catch (err) {
         console.error('SQLite: Failed to get preset templates:', err);
         throw err;

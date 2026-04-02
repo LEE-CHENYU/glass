@@ -3580,7 +3580,7 @@ null == ct || ct({ LitElement: ut });
 
 // src/ui/settings/SettingsView.js
 var LEGACY_PROMPT_OPTIONS = [
-  { id: "profile:hebbia", label: "Hebbia Interview" },
+  { id: "profile:hebbia", label: "Hebbia Solutions Engineer" },
   { id: "profile:rogo", label: "Rogo Interview" },
   { id: "profile:meridian", label: "Meridian Interview" },
   { id: "profile:addepar", label: "Addepar Interview" },
@@ -5530,7 +5530,7 @@ var SummaryView = class extends ut {
     });
   }
   async handleRequestClick(requestText) {
-    console.log("\u{1F525} Analysis request clicked:", requestText);
+    console.log("\u{1F525} Coaching request clicked:", requestText);
     if (window.api) {
       try {
         const result = await window.api.summaryView.sendQuestionFromSummary(requestText);
@@ -5548,22 +5548,22 @@ var SummaryView = class extends ut {
     const data = this.structuredData || { summary: [], topic: { header: "", bullets: [] }, actions: [] };
     let sections = [];
     if (data.summary && data.summary.length > 0) {
-      sections.push(`Current Summary:
+      sections.push(`What To Say Now:
 ${data.summary.map((s2) => `\u2022 ${s2}`).join("\n")}`);
     }
     if (data.topic && data.topic.header && data.topic.bullets.length > 0) {
       sections.push(`
-${data.topic.header}:
+${data.topic.header}
 ${data.topic.bullets.map((b2) => `\u2022 ${b2}`).join("\n")}`);
     }
     if (data.actions && data.actions.length > 0) {
       sections.push(`
-Actions:
+Next Moves:
 ${data.actions.map((a2) => `\u25B8 ${a2}`).join("\n")}`);
     }
     if (data.followUps && data.followUps.length > 0) {
       sections.push(`
-Follow-Ups:
+After Interview:
 ${data.followUps.map((f2) => `\u25B8 ${f2}`).join("\n")}`);
     }
     return sections.join("\n\n").trim();
@@ -5584,8 +5584,8 @@ ${data.followUps.map((f2) => `\u25B8 ${f2}`).join("\n")}`);
     const hasAnyContent = data.summary.length > 0 || data.topic.bullets.length > 0 || data.actions.length > 0;
     return H`
             <div class="insights-container">
-                ${!hasAnyContent ? H`<div class="empty-state">No insights yet...</div>` : H`
-                        <insights-title>Current Summary</insights-title>
+                ${!hasAnyContent ? H`<div class="empty-state">No live help yet...</div>` : H`
+                        <insights-title>What To Say Now</insights-title>
                         ${data.summary.length > 0 ? data.summary.slice(0, 5).map(
       (bullet, index) => H`
                                           <div
@@ -5614,7 +5614,7 @@ ${data.followUps.map((f2) => `\u25B8 ${f2}`).join("\n")}`);
     )}
                               ` : ""}
                         ${data.actions.length > 0 ? H`
-                                  <insights-title>Actions</insights-title>
+                                  <insights-title>Next Moves</insights-title>
                                   ${data.actions.slice(0, 5).map(
       (action, index) => H`
                                               <div
@@ -5629,7 +5629,7 @@ ${data.followUps.map((f2) => `\u25B8 ${f2}`).join("\n")}`);
     )}
                               ` : ""}
                         ${this.hasCompletedRecording && data.followUps && data.followUps.length > 0 ? H`
-                                  <insights-title>Follow-Ups</insights-title>
+                                  <insights-title>After Interview</insights-title>
                                   ${data.followUps.map(
       (followUp, index) => H`
                                           <div
@@ -6228,7 +6228,7 @@ var ListenView = class extends ut {
     setTimeout(() => this.adjustWindowHeight(), 200);
   }
   render() {
-    const displayText = this.isHovering ? this.viewMode === "transcript" ? "Copy Transcript" : "Copy Glass Analysis" : this.viewMode === "insights" ? `Live insights` : `Tars Listening ${this.elapsedTime}`;
+    const displayText = this.isHovering ? this.viewMode === "transcript" ? "Copy Transcript" : "Copy Interview Help" : this.viewMode === "insights" ? `Live interview help` : `Tars Listening ${this.elapsedTime}`;
     return H`
             <div class="assistant-container">
                 <div class="top-bar">
@@ -6248,7 +6248,7 @@ var ListenView = class extends ut {
                                           <path d="M9 11l3 3L22 4" />
                                           <path d="M22 12v7a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h11" />
                                       </svg>
-                                      <span>Show Insights</span>
+                                      <span>Show Interview Help</span>
                                   `}
                         </button>
                         <button
